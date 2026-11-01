@@ -1,7 +1,7 @@
 
 function CountryCard({ country }) {
   return (
-    <div className="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
 
       <img
         src={country.flag?.url_png}
