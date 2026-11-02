@@ -1,61 +1,70 @@
-import { useState, useEffect } from "react";
-import CountryList from "./components/CountryList";
-import SearchBar from "./components/SearchBar";
-import RegionFilter from "./components/RegionFilter";
+import { useState, useEffect } from 'react'
+import CountryList from './components/CountryList'
+import CountryDetail from './components/CountryDetail'
+import SearchBar from './components/SearchBar'
+import RegionFilter from './components/RegionFilter'
 
 const API_URL =
-  "https://api.restcountries.com/countries/v5?limit=100&response_fields=names.common,flag.url_png,region,population,capitals,codes.alpha_3";
+  "https://api.restcountries.com/countries/v5?limit=100&response_fields=names.common,flag.url_png,region,population,capitals,codes.alpha_3"
 
 function App() {
-  const [countries, setCountries] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [search, setSearch] = useState("");
-  const [region, setRegion] = useState("all");
-
-  const visible = countries.filter((c) => {
-    const matchesSearch = c.names.common
-      .toLowerCase()
-      .includes(search.toLowerCase());
-    const matchesRegion = region === "all" || c.region === region;
-    return matchesSearch && matchesRegion;
-  });
+  const [countries, setCountries] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [search, setSearch] = useState("")
+  const [region, setRegion] = useState("all")
+  const [selected, setSelected] = useState(null)
 
   useEffect(() => {
     const load = async () => {
       try {
         const res = await fetch(API_URL, {
           headers: { Authorization: `Bearer ${import.meta.env.VITE_RC_KEY}` },
-        });
+        })
         if (!res.ok) {
-          throw new Error("Sunucu hatası: " + res.status);
+          throw new Error("Server error: " + res.status)
         }
-        const json = await res.json();
-        setCountries(json.data.objects);
+        const json = await res.json()
+        setCountries(json.data.objects)
       } catch (err) {
-        setError(err.message);
+        setError(err.message)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    load();
-  }, []);
+    }
+    load()
+  }, [])
 
-  if (loading) return <p className="p-6">Loading…</p>;
-  if (error) return <p className="p-6 text-red-600">Error: {error}</p>;
+  const visible = countries.filter((c) => {
+    const matchesSearch = c.names.common
+      .toLowerCase()
+      .includes(search.toLowerCase())
+    const matchesRegion = region === "all" || c.region === region
+    return matchesSearch && matchesRegion
+  })
+
+  if (loading) return <p className="p-6">Loading…</p>
+  if (error) return <p className="p-6 text-red-600">Error: {error}</p>
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Country Explorer</h1>
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          <SearchBar search={search} onSearchChange={setSearch} />
-          <RegionFilter region={region} onRegionChange={setRegion} />
-        </div>
-        <CountryList countries={visible} />
+
+        {selected ? (
+          <CountryDetail country={selected} onBack={() => setSelected(null)} />
+        ) : (
+          <>
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
+              <SearchBar search={search} onSearchChange={setSearch} />
+              <RegionFilter region={region} onRegionChange={setRegion} />
+            </div>
+            <CountryList countries={visible} onSelect={setSelected} />
+          </>
+        )}
       </div>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
