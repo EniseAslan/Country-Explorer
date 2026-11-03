@@ -14,7 +14,7 @@ function CountryCard({ country, onSelect }) {
         />
       ) : (
         <div className="w-full h-40 bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-          Bayrak yok
+          No Flag
         </div>
       )}
       <div className="p-4">

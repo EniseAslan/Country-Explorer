@@ -4,6 +4,7 @@ import CountryDetail from './components/CountryDetail'
 import SearchBar from './components/SearchBar'
 import RegionFilter from './components/RegionFilter'
 import SortSelect from './components/SortSelect'
+import { useDebounce } from './hooks/useDebounce'
 
 
 const API_URL =
@@ -17,6 +18,9 @@ function App() {
   const [region, setRegion] = useState("all")
   const [selected, setSelected] = useState(null)
   const [sortBy, setSortBy] = useState("name")
+
+
+  const debouncedSearch =useDebounce(search,200)
 
   useEffect(() => {
     const load = async () => {
@@ -41,7 +45,7 @@ function App() {
   const visible = countries.filter((c) => {
    const matchesSearch = c.names?.common
   ?.toLowerCase()
-  .includes(search.toLowerCase())
+  .includes(debouncedSearch.toLowerCase())
     const matchesRegion = region === "all" || c.region === region
     return matchesSearch && matchesRegion
   })
