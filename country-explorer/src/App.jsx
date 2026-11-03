@@ -3,6 +3,8 @@ import CountryList from './components/CountryList'
 import CountryDetail from './components/CountryDetail'
 import SearchBar from './components/SearchBar'
 import RegionFilter from './components/RegionFilter'
+import SortSelect from './components/SortSelect'
+
 
 const API_URL =
   "https://api.restcountries.com/countries/v5?limit=100&response_fields=names.common,flag.url_png,region,population,capitals,codes.alpha_3"
@@ -14,6 +16,7 @@ function App() {
   const [search, setSearch] = useState("")
   const [region, setRegion] = useState("all")
   const [selected, setSelected] = useState(null)
+  const [sortBy, setSortBy] = useState("name")
 
   useEffect(() => {
     const load = async () => {
@@ -25,7 +28,7 @@ function App() {
           throw new Error("Server error: " + res.status)
         }
         const json = await res.json()
-        setCountries(json.data.objects)
+        setCountries(json?.data?.objects ?? [])
       } catch (err) {
         setError(err.message)
       } finally {
@@ -36,11 +39,16 @@ function App() {
   }, [])
 
   const visible = countries.filter((c) => {
-    const matchesSearch = c.names.common
-      .toLowerCase()
-      .includes(search.toLowerCase())
+   const matchesSearch = c.names?.common
+  ?.toLowerCase()
+  .includes(search.toLowerCase())
     const matchesRegion = region === "all" || c.region === region
     return matchesSearch && matchesRegion
+  })
+  .sort((a, b) => {
+    if (sortBy === "desc") return (b.population || 0) - (a.population || 0)
+    if (sortBy === "asc") return (a.population || 0) - (b.population || 0)
+    return a.names.common.localeCompare(b.names.common)
   })
 
   if (loading) return <p className="p-6">Loading…</p>
@@ -58,6 +66,7 @@ function App() {
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
               <SearchBar search={search} onSearchChange={setSearch} />
               <RegionFilter region={region} onRegionChange={setRegion} />
+              <SortSelect sortBy={sortBy} onSortChange={setSortBy} />
             </div>
             <CountryList countries={visible} onSelect={setSelected} />
           </>
