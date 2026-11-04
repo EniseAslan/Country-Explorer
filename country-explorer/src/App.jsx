@@ -17,19 +17,20 @@ function App() {
 
   const debouncedSearch = useDebounce(search, 300)
 
-
   const visible = countries
     .filter((c) => {
-      const matchesSearch = c.names.common
+     
+      const matchesSearch = (c.names?.common ?? "")
         .toLowerCase()
         .includes(debouncedSearch.toLowerCase())
       const matchesRegion = region === "all" || c.region === region
       return matchesSearch && matchesRegion
     })
-    .sort((a, b) => {
+    .toSorted((a, b) => {
       if (sortBy === "desc") return (b.population || 0) - (a.population || 0)
       if (sortBy === "asc") return (a.population || 0) - (b.population || 0)
-      return a.names.common.localeCompare(b.names.common)
+      
+      return (a.names?.common ?? "").localeCompare(b.names?.common ?? "")
     })
 
   if (loading) return <p className="p-6">Loading…</p>
@@ -43,7 +44,7 @@ function App() {
         {selected ? (
           <CountryDetail
             country={selected}
-            countries={countries}
+          
             onBack={() => setSelected(null)}
             onSelect={setSelected}
           />

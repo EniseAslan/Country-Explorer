@@ -1,8 +1,13 @@
-function CountryDetail({ country, countries = [], onBack, onSelect }) {
- 
-  const borderCountries = (country.borders ?? [])
-    .map((code) => countries.find((c) => c.codes.alpha_3 === code))
-    .filter(Boolean);
+import { useBorderCountries } from "../hooks/useBorderCountries";
+
+
+function CountryDetail({ country, onBack, onSelect }) {
+  
+  const {
+    borderCountries,
+    loading: bordersLoading,
+    error: bordersError,
+  } = useBorderCountries(country.codes.alpha_3);
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
@@ -36,25 +41,36 @@ function CountryDetail({ country, countries = [], onBack, onSelect }) {
       <div className="mt-6 pt-6 border-t border-gray-200">
         <h3 className="text-lg font-semibold mb-3">Border Countries</h3>
 
-        {borderCountries.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No bordering countries (island or no data).
-          </p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {borderCountries.map((c) => (
-              <button
-                key={c.codes.alpha_3}
-                onClick={() => onSelect(c)}
-                className="px-3 py-1.5 rounded-md bg-gray-100 text-gray-800 text-sm font-medium
-                           hover:bg-gray-200 hover:shadow-sm
-                           focus:outline-none focus:ring-2 focus:ring-blue-400
-                           transition-colors"
-              >
-                {c.names.common}
-              </button>
-            ))}
-          </div>
+      
+        {bordersLoading && (
+          <p className="text-sm text-gray-500">Loading neighbors…</p>
+        )}
+
+        {bordersError && (
+          <p className="text-sm text-red-500">Error: {bordersError}</p>
+        )}
+
+        {!bordersLoading && !bordersError && (
+          borderCountries.length === 0 ? (
+            <p className="text-sm text-gray-500">
+              No bordering countries (island or no data).
+            </p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {borderCountries.map((c) => (
+                <button
+                  key={c.codes.alpha_3}
+                  onClick={() => onSelect(c)}
+                  className="px-3 py-1.5 rounded-md bg-gray-100 text-gray-800 text-sm font-medium
+                             hover:bg-gray-200 hover:shadow-sm
+                             focus:outline-none focus:ring-2 focus:ring-blue-400
+                             transition-colors"
+                >
+                  {c.names.common}
+                </button>
+              ))}
+            </div>
+          )
         )}
       </div>
     </div>
