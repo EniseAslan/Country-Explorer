@@ -17,9 +17,13 @@ export function useCountries() {
         if (!res.ok) {
           throw new Error("Server error: " + res.status);
         }
+
         const json = await res.json();
-        console.log("İlk ülke:", json?.data?.objects?.[0]);
-        setCountries(json?.data?.objects ?? []);
+        const objects = json?.data?.objects ?? [];
+        const valid = objects.filter(
+          (c) => c?.names?.common && c?.codes?.alpha_3
+        );
+        setCountries(valid);
       } catch (err) {
         setError(err.message);
       } finally {

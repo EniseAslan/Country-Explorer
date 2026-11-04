@@ -1,9 +1,7 @@
-
-
 function CountryDetail({ country, countries = [], onBack, onSelect }) {
-
+ 
   const borderCountries = (country.borders ?? [])
-    .map((code) => countries.find((c) => c.codes?.alpha_3 === code))
+    .map((code) => countries.find((c) => c.codes.alpha_3 === code))
     .filter(Boolean);
 
   return (
